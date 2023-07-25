@@ -1,20 +1,35 @@
 <?php
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $conn = mysqli_connect("localhost", "root", "", "my_database");
+// Datos de conexión a la base de datos
+$host = 'localhost';
+$usuario_bd = 'root';
+$password_bd = '';
+$nombre_bd = 'my_database';
 
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+// Conexión a la base de datos
+$conexion = new mysqli($host, $usuario_bd, $password_bd, $nombre_bd);
 
-    // Vulnerable SQL query with no input validation (for educational purposes only)
-    $query = "SELECT * FROM users WHERE username = '$username' AND password = '$password'";
-    $result = mysqli_query($conn, $query);
-
-    if (mysqli_num_rows($result) > 0) {
-        echo "<p>Login successful!</p>";
-    } else {
-        echo "<p>Login failed.</p>";
-    }
-
-    mysqli_close($conn);
+// Verificar si hay un error en la conexión
+if ($conexion->connect_error) {
+    die('Error en la conexión: ' . $conexion->connect_error);
 }
+
+// Obtener los datos ingresados en el formulario
+$usuario = $_POST['usuario'];
+$password = $_POST['password'];
+
+// Consulta SQL para verificar las credenciales del usuario
+$sql = "SELECT * FROM usuarios WHERE usuario = '$usuario' AND password = '$password'";
+$resultado = $conexion->query($sql);
+
+// Verificar si se encontraron resultados
+if ($resultado->num_rows > 0) {
+    // Inicio de sesión exitoso, redirigir a la página de inicio
+    header('Location: inicio.html');
+} else {
+    // Credenciales inválidas, mostrar mensaje de error
+    echo "Usuario o contraseña incorrectos.";
+}
+
+// Cerrar la conexión a la base de datos
+$conexion->close();
 ?>
